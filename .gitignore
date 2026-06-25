@@ -1,0 +1,26 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDEs
+.vs/
+.vscode/
+*.csproj.user
+
+# NuGet
+*.nupkg
+**/packages/*
+
+# Test results
+TestResults/
+
+# Secrets
+secrets.json
+
+# OS
+.DS_Store
+Thumbs.db

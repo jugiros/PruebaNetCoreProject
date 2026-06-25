@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>PruebaNetCoreProject.Domain</AssemblyName>
+    <RootNamespace>PruebaNetCoreProject.Domain</RootNamespace>
+  </PropertyGroup>
+
+</Project>
