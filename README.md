@@ -1,14 +1,14 @@
-# core-transactions-service — Fintech Platform
+# Fintech Platform — Monorepo
 
-Microservicio de escritura (Write Side CQRS) de la plataforma Fintech.  
-Stack: **.NET Core 9 · Hexagonal + DDD · CQRS (MediatR) · MySQL 8 · Kafka (EDA) · Docker**
+Plataforma de pagos y transferencias financieras basada en **microservicios .NET Core 9**.  
+Arquitectura: **Hexagonal + DDD · CQRS (MediatR) · Kafka EDA · Outbox Pattern · OAuth 2.0 · Docker**
 
 ---
 
 ## Tabla de contenido
 
 1. [Pre-requisitos](#1-pre-requisitos)
-2. [Estructura del proyecto](#2-estructura-del-proyecto)
+2. [Estructura del monorepo](#2-estructura-del-monorepo)
 3. [Infraestructura Docker — servicios compartidos](#3-infraestructura-docker--servicios-compartidos)
    - 3.1 [Levantar los contenedores](#31-levantar-los-contenedores)
    - 3.2 [Verificar que todos los servicios están healthy](#32-verificar-que-todos-los-servicios-están-healthy)
@@ -16,8 +16,8 @@ Stack: **.NET Core 9 · Hexagonal + DDD · CQRS (MediatR) · MySQL 8 · Kafka (E
    - 3.4 [Kafka UI](#34-kafka-ui)
    - 3.5 [Detener la infraestructura](#35-detener-la-infraestructura)
 4. [Variables de conexión (appsettings.Development.json)](#4-variables-de-conexión-appsettingsdevelopmentjson)
-5. [Ejecutar el microservicio (.NET)](#5-ejecutar-el-microservicio-net)
-6. [Build con Docker (imagen del microservicio)](#6-build-con-docker-imagen-del-microservicio)
+5. [Ejecutar un microservicio (.NET)](#5-ejecutar-un-microservicio-net)
+6. [Build con Docker (imagen de un microservicio)](#6-build-con-docker-imagen-de-un-microservicio)
 7. [Puertos y credenciales de referencia](#7-puertos-y-credenciales-de-referencia)
 8. [Solución de problemas comunes](#8-solución-de-problemas-comunes)
 
@@ -43,30 +43,48 @@ dotnet --version          # 9.0.x
 
 ---
 
-## 2. Estructura del proyecto
+## 2. Estructura del monorepo
 
 ```
-PruebaNetCoreProject/
+PruebaNetCoreProject/                        ← raíz de la plataforma (monorepo)
+│
+├── core-transactions-service/               ✅ Write CQRS — MySQL + Kafka producer
+│   ├── src/
+│   │   ├── Core/
+│   │   │   ├── Domain/                      ← Entidades, Value Objects, Agregados
+│   │   │   └── Application/                 ← Commands, Queries, Ports, Handlers
+│   │   ├── Infrastructure/
+│   │   │   ├── Persistence/                 ← EF Core (MySQL), MongoDB, Redis, Outbox
+│   │   │   └── DependencyInjection/         ← Registro de servicios
+│   │   └── Presentation/
+│   │       └── API/                         ← Controllers, Program.cs, middlewares
+│   ├── tests/
+│   │   ├── Domain.Tests/
+│   │   ├── Application.Tests/
+│   │   └── Infrastructure.Tests/
+│   ├── Dockerfile                           ← Build multi-stage SDK 9.0 → aspnet:9.0
+│   ├── .dockerignore
+│   ├── .editorconfig                        ← Reglas SonarLint C#
+│   ├── Directory.Build.props
+│   ├── global.json
+│   └── PruebaNetCoreProject.sln
+│
+├── auth-service/                            ⏳ OAuth 2.0 + JWT — MySQL
+│   └── (misma estructura hexagonal)
+│
+├── account-queries-service/                 ⏳ Read CQRS — MongoDB + Redis + Kafka consumer
+│   └── (misma estructura hexagonal)
+│
+├── api-gateway/                             ⏳ YARP .NET Core 9
+│   └── (configuración de routing)
+│
 ├── docker/
-│   └── docker-compose.infra.yml   ← Infraestructura compartida (MySQL, MongoDB, Redis, Kafka)
-├── src/
-│   ├── Core/
-│   │   ├── Domain/                ← Entidades, Value Objects, Agregados, Interfaces de dominio
-│   │   └── Application/           ← Commands, Queries, Ports, CQRS handlers, Result pattern
-│   ├── Infrastructure/
-│   │   ├── Persistence/           ← EF Core (MySQL), MongoDB, Redis, Outbox
-│   │   └── DependencyInjection/   ← Registro de servicios y configuración
-│   └── Presentation/
-│       └── API/                   ← Controllers, Program.cs, middlewares
-├── tests/
-│   ├── Domain.Tests/
-│   ├── Application.Tests/
-│   └── Infrastructure.Tests/
-├── Dockerfile                     ← Build multi-stage de la imagen del microservicio
-├── .dockerignore
-├── .editorconfig                  ← Reglas SonarLint C#
-└── PruebaNetCoreProject.sln
+│   └── docker-compose.infra.yml             ← Infraestructura compartida por TODOS los servicios
+├── .gitignore                               ← Aplica a todo el monorepo
+└── README.md                                ← Este archivo
 ```
+
+> **Regla del monorepo:** Cada microservicio es un proyecto `.sln` independiente con su propio `Dockerfile`. La infraestructura Docker (`docker/`) es compartida.
 
 ---
 
@@ -193,19 +211,21 @@ Las cadenas de conexión ya están configuradas en `src/Presentation/API/appsett
 
 ---
 
-## 5. Ejecutar el microservicio (.NET)
+## 5. Ejecutar un microservicio (.NET)
 
-Con la infraestructura Docker corriendo, ejecutar desde la raíz del repositorio:
+Con la infraestructura Docker corriendo, moverse al directorio del servicio:
+
+### core-transactions-service (Write CQRS)
 
 ```bash
 # Restaurar dependencias
-dotnet restore PruebaNetCoreProject.sln
+dotnet restore core-transactions-service/PruebaNetCoreProject.sln
 
 # Compilar (con TreatWarningsAsErrors activo)
-dotnet build PruebaNetCoreProject.sln
+dotnet build core-transactions-service/PruebaNetCoreProject.sln
 
 # Ejecutar la API
-dotnet run --project src/Presentation/API/API.csproj
+dotnet run --project core-transactions-service/src/Presentation/API/API.csproj
 ```
 
 La API estará disponible en:
@@ -216,18 +236,37 @@ La API estará disponible en:
 Ejecutar los tests:
 
 ```bash
-dotnet test PruebaNetCoreProject.sln
+dotnet test core-transactions-service/PruebaNetCoreProject.sln
+```
+
+### auth-service (⏳ próximamente)
+
+```bash
+dotnet run --project auth-service/src/Presentation/API/API.csproj
+# Puerto: http://localhost:5010 / https://localhost:5011
+```
+
+### account-queries-service (⏳ próximamente)
+
+```bash
+dotnet run --project account-queries-service/src/Presentation/API/API.csproj
+# Puerto: http://localhost:5020 / https://localhost:5021
 ```
 
 ---
 
-## 6. Build con Docker (imagen del microservicio)
+## 6. Build con Docker (imagen de un microservicio)
 
-Para construir y ejecutar el microservicio como contenedor Docker:
+Cada microservicio tiene su propio `Dockerfile` dentro de su directorio. El build context es siempre el directorio del servicio:
+
+### core-transactions-service
 
 ```bash
-# Build de la imagen multi-stage
-docker build -t core-transactions-service:latest .
+# Build desde la raíz del monorepo
+docker build \
+  -t core-transactions-service:latest \
+  -f core-transactions-service/Dockerfile \
+  core-transactions-service/
 
 # Ejecutar el contenedor conectado a la red de infraestructura
 docker run -d \
@@ -240,11 +279,19 @@ docker run -d \
   core-transactions-service:latest
 ```
 
-> El `Dockerfile` usa build multi-stage (SDK 9.0 → aspnet:9.0) con usuario non-root para cumplir estándares de seguridad ISO 27001.
+### auth-service (⏳ próximamente)
+
+```bash
+docker build -t auth-service:latest -f auth-service/Dockerfile auth-service/
+```
+
+> Todos los `Dockerfile` usan build multi-stage (SDK 9.0 → aspnet:9.0) con usuario non-root para cumplir estándares de seguridad ISO 27001.
 
 ---
 
 ## 7. Puertos y credenciales de referencia
+
+**Infraestructura Docker (compartida):**
 
 | Servicio | Puerto | Usuario | Contraseña | Base de datos |
 |---|---|---|---|---|
@@ -252,8 +299,16 @@ docker run -d \
 | MongoDB | `27017` | — (sin auth en dev) | — | `fintech_db` |
 | Redis | `6379` | — | `fintech2024` | — |
 | Kafka Broker | `9092` | — | — | — |
-| Kafka UI | `8090` | — | — | — |
-| API (.NET) | `5000/5001` | — | JWT Bearer | — |
+| Kafka UI | `8090` | — | — | http://localhost:8090 |
+
+**Microservicios (.NET):**
+
+| Microservicio | HTTP | HTTPS | Swagger | Estado |
+|---|---|---|---|---|
+| `core-transactions-service` | `5000` | `5001` | https://localhost:5001/swagger | ✅ Scaffolding |
+| `auth-service` | `5010` | `5011` | https://localhost:5011/swagger | ⏳ Por crear |
+| `account-queries-service` | `5020` | `5021` | https://localhost:5021/swagger | ⏳ Por crear |
+| `api-gateway` | `5000` | `5443` | — | ⏳ Por crear |
 
 > **Seguridad:** Estas credenciales son exclusivas para el entorno de desarrollo local. Nunca usar en staging o producción.
 
