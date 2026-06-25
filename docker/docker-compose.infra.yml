@@ -1,0 +1,101 @@
+services:
+
+  mysql-fintech:
+    image: mysql:8.0
+    container_name: mysql-fintech
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: fintechroot2024
+      MYSQL_DATABASE: fintech_db
+      MYSQL_USER: fintech
+      MYSQL_PASSWORD: fintech2024
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pfintechroot2024"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb-fintech:
+    image: mongo:7.0
+    container_name: mongodb-fintech
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: fintech_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-fintech:
+    image: redis:7-alpine
+    container_name: redis-fintech
+    restart: unless-stopped
+    command: redis-server --save 20 1 --loglevel warning --requirepass fintech2024
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "fintech2024", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka-fintech:
+    image: apache/kafka:latest
+    container_name: kafka-fintech
+    restart: unless-stopped
+    environment:
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-fintech:9093
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_NUM_PARTITIONS=3
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9092 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui-fintech
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: fintech-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-fintech:9092
+    depends_on:
+      kafka-fintech:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  mongo_data:
+  redis_data:
+  kafka_data:
+
+networks:
+  default:
+    name: fintech-network
