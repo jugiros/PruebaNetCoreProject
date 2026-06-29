@@ -19,3 +19,21 @@ dotnet_diagnostic.S3925.severity = warning
 dotnet_diagnostic.CA1031.severity = warning
 dotnet_diagnostic.CA1062.severity = warning
 dotnet_diagnostic.CA2007.severity = warning
+
+# StyleCop — suprimidas: la calidad se gestiona via SonarAnalyzer.CSharp (S*)
+dotnet_diagnostic.SA0001.severity = none
+dotnet_diagnostic.SA1025.severity = none
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SA1128.severity = none
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1201.severity = none
+dotnet_diagnostic.SA1208.severity = none
+dotnet_diagnostic.SA1413.severity = none
+dotnet_diagnostic.SA1502.severity = none
+dotnet_diagnostic.SA1503.severity = none
+dotnet_diagnostic.SA1516.severity = none
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1402.severity = none
+dotnet_diagnostic.SA1116.severity = none
+dotnet_diagnostic.SA1117.severity = none

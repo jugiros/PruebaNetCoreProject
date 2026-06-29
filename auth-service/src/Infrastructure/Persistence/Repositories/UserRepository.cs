@@ -1,37 +1,25 @@
-using AuthService.Application.Ports;
+﻿using AuthService.Application.Ports;
 using AuthService.Domain.Entities;
 using AuthService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Persistence.Repositories;
 
 public sealed class UserRepository : IUserRepository
 {
     private readonly AuthDbContext _context;
-    private readonly ILogger<UserRepository> _logger;
 
-    public UserRepository(AuthDbContext context, ILogger<UserRepository> logger)
+    public UserRepository(AuthDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        ArgumentNullException.ThrowIfNull(logger);
         _context = context;
-        _logger  = logger;
     }
 
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            return await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Error al obtener usuario por Id");
-            throw;
-        }
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
