@@ -2,7 +2,6 @@
     "dotnet.defaultSolution": "auth-service/AuthService.sln",
     "omnisharp.enableRoslynAnalyzers": true,
     "omnisharp.enableEditorConfigSupport": true,
-    "omnisharp.organizeImportsOnFormat": true,
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
     "editor.codeActionsOnSave": {
@@ -49,5 +48,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
     },
     "csharp.debug.console": "internalConsole",
-    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+    "dotnet.formatting.organizeImportsOnFormat": true
 }
