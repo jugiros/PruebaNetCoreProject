@@ -78,6 +78,24 @@
             }
         },
         {
+            "name": "Launch API Gateway",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build:api-gateway",
+            "program": "${workspaceFolder}/api-gateway/src/Gateway/bin/Debug/net9.0/ApiGateway.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/api-gateway/src/Gateway",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:5443;http://localhost:5100"
+            },
+            "console": "internalConsole",
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "Attach to Process",
             "type": "coreclr",
             "request": "attach"
@@ -88,7 +106,8 @@
             "name": "Launch All Services",
             "configurations": [
                 "Launch Auth Service",
-                "Launch Core Transactions Service"
+                "Launch Core Transactions Service",
+                "Launch API Gateway"
             ],
             "stopAll": true
         }

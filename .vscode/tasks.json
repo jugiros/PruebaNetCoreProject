@@ -40,10 +40,47 @@
             }
         },
         {
+            "label": "build:api-gateway",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/api-gateway/src/Gateway/Gateway.csproj",
+                "--configuration",
+                "Debug",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "watch:api-gateway",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/api-gateway/src/Gateway/Gateway.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
             "label": "build:all",
             "dependsOn": [
                 "build:auth-service",
-                "build:core-transactions-service"
+                "build:core-transactions-service",
+                "build:api-gateway"
             ],
             "dependsOrder": "parallel",
             "group": {
