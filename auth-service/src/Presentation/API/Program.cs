@@ -1,4 +1,4 @@
-using AuthService.API.Middleware;
+﻿using AuthService.API.Middleware;
 using AuthService.Infrastructure.DependencyInjection;
 using AuthService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -45,8 +45,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
