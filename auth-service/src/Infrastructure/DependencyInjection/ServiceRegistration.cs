@@ -1,3 +1,4 @@
+using AuthService.Application.Behaviors;
 using AuthService.Application.Ports;
 using AuthService.Application.UseCases.Commands.RegisterUser;
 using AuthService.Infrastructure.DependencyInjection.Adapters;
@@ -27,6 +28,7 @@ public static class ServiceRegistration
         services.AddDbContext(configuration);
         services.AddApplicationServices();
         services.AddJwtAuthentication(configuration);
+        services.AddCorsPolicy(configuration);
 
         return services;
     }
@@ -37,22 +39,40 @@ public static class ServiceRegistration
             ?? throw new InvalidOperationException("ConnectionStrings:MySQL no configurado.");
 
         services.AddDbContext<AuthDbContext>(options =>
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
+            options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))),
             ServiceLifetime.Scoped);
     }
 
     private static void AddApplicationServices(this IServiceCollection services)
     {
-        services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly));
+        var appAssembly = typeof(RegisterUserCommandHandler).Assembly;
 
-        services.AddValidatorsFromAssembly(typeof(RegisterUserCommandHandler).Assembly);
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(appAssembly);
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        });
+
+        services.AddValidatorsFromAssembly(appAssembly);
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<ICurrentUserContext, HttpCurrentUserContext>();
         services.AddHttpContextAccessor();
+    }
+
+    private static void AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
+    {
+        var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                      ?? ["http://localhost:3000", "http://localhost:5173"];
+
+        services.AddCors(options =>
+            options.AddPolicy("FrontendPolicy", policy =>
+                policy.WithOrigins(origins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials()));
     }
 
     private static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)

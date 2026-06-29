@@ -8,7 +8,7 @@ obj/
 
 # IDEs
 .vs/
-.vscode/
+.vscode/*.code-snippets
 *.csproj.user
 
 # NuGet

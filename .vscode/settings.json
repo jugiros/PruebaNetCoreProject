@@ -1,0 +1,53 @@
+{
+    "dotnet.defaultSolution": "auth-service/AuthService.sln",
+    "omnisharp.enableRoslynAnalyzers": true,
+    "omnisharp.enableEditorConfigSupport": true,
+    "omnisharp.organizeImportsOnFormat": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/.vs": true,
+        "**/TestResults": true
+    },
+    "files.watcherExclude": {
+        "**/bin/**": true,
+        "**/obj/**": true,
+        "**/TestResults/**": true
+    },
+    "files.associations": {
+        "*.csproj": "xml",
+        "*.props": "xml",
+        "*.targets": "xml",
+        "*.sln": "ini",
+        "Dockerfile*": "dockerfile"
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.csproj": "*.user",
+        "appsettings.json": "appsettings.*.json",
+        "Program.cs": "Startup.cs, GlobalExceptionHandler.cs"
+    },
+    "dotnet-test-explorer.testProjectPath": "**/*.Tests.csproj",
+    "dotnet-test-explorer.autoWatch": false,
+    "rest-client.environmentVariables": {
+        "$shared": {
+            "authBaseUrl": "http://localhost:5010",
+            "transactionsBaseUrl": "http://localhost:5000"
+        },
+        "local": {
+            "authToken": ""
+        }
+    },
+    "docker.defaultRegistryPath": "ghcr.io/tandicorp",
+    "terminal.integrated.env.windows": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+    },
+    "csharp.debug.console": "internalConsole",
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true
+}
