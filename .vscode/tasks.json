@@ -282,6 +282,41 @@
             }
         },
         {
+            "label": "format:auth-service",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "format",
+                "${workspaceFolder}/auth-service/AuthService.sln",
+                "--severity",
+                "warn",
+                "--verbosity",
+                "diagnostic"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "format:verify-auth-service",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "format",
+                "${workspaceFolder}/auth-service/AuthService.sln",
+                "--verify-no-changes",
+                "--severity",
+                "warn"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
             "label": "restore:all",
             "command": "dotnet",
             "type": "process",

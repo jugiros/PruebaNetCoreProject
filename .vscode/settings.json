@@ -49,5 +49,14 @@
     },
     "csharp.debug.console": "internalConsole",
     "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
-    "dotnet.formatting.organizeImportsOnFormat": true
+    "dotnet.formatting.organizeImportsOnFormat": true,
+    "[csharp]": {
+        "editor.defaultFormatter": "muhammad-sammy.csharp",
+        "editor.formatOnSave": true
+    },
+    "sonarlint.rules": {
+        "csharpsquid:S2068": { "level": "on" },
+        "csharpsquid:S2077": { "level": "on" },
+        "csharpsquid:S1186": { "level": "on" }
+    }
 }

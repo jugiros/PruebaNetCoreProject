@@ -1,0 +1,23 @@
+{
+    "settings": {
+        "documentationRules": {
+            "companyName": "TANDICORP",
+            "xmlHeader": false,
+            "documentExposedElements": false,
+            "documentInternalElements": false,
+            "documentPrivateElements": false,
+            "documentPrivateFields": false
+        },
+        "orderingRules": {
+            "usingDirectivesPlacement": "outsideNamespace",
+            "systemUsingDirectivesFirst": true
+        },
+        "namingRules": {
+            "allowCommonHungarianPrefixes": false,
+            "allowedHungarianPrefixes": []
+        },
+        "layoutRules": {
+            "newlineAtEndOfFile": "require"
+        }
+    }
+}
